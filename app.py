@@ -7,23 +7,32 @@ from langchain_community.chat_models.tongyi import ChatTongyi
 import os
 
 # ==================== 读取 Streamlit Cloud Secrets ====================
+api_key = ""
 if "DASHSCOPE_API_KEY" in st.secrets:
-    os.environ["DASHSCOPE_API_KEY"] = st.secrets["DASHSCOPE_API_KEY"]
+    api_key = str(st.secrets["DASHSCOPE_API_KEY"])
+    os.environ["DASHSCOPE_API_KEY"] = api_key
 
 # ==================== 页面配置 ====================
 st.set_page_config(page_title="文档问答助手", page_icon="📄")
 st.title("📄 基于文档的 RAG 问答系统")
 
+# 诊断信息：检查 API Key 是否设置
+if api_key:
+    st.sidebar.success(f"✅ API Key 已加载 ({api_key[:4]}...{api_key[-4:]})")
+else:
+    st.sidebar.error("❌ 未检测到 DASHSCOPE_API_KEY，请在 Settings → Secrets 中添加")
+    st.stop()
+
 
 # ==================== 初始化模型 (利用缓存提高效率) ====================
 @st.cache_resource
 def init_llm():
-    return ChatTongyi(model="qwen-turbo", temperature=0)
+    return ChatTongyi(model="qwen-turbo", temperature=0, dashscope_api_key=api_key)
 
 
 @st.cache_resource
 def init_embeddings():
-    return DashScopeEmbeddings(model="text-embedding-v1")
+    return DashScopeEmbeddings(model="text-embedding-v2", dashscope_api_key=api_key)
 
 
 llm = init_llm()
