@@ -6,6 +6,10 @@ from langchain_community.vectorstores import FAISS
 from langchain_community.chat_models.tongyi import ChatTongyi
 import os
 
+# ==================== 读取 Streamlit Cloud Secrets ====================
+if "DASHSCOPE_API_KEY" in st.secrets:
+    os.environ["DASHSCOPE_API_KEY"] = st.secrets["DASHSCOPE_API_KEY"]
+
 # ==================== 页面配置 ====================
 st.set_page_config(page_title="文档问答助手", page_icon="📄")
 st.title("📄 基于文档的 RAG 问答系统")
