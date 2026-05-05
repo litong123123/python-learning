@@ -79,8 +79,9 @@ class DirectDashScopeEmbeddings(Embeddings):
 
 # ==================== 初始化模型 ====================
 @st.cache_resource
-def init_llm():
-    return ChatTongyi(model="qwen-turbo", temperature=0, dashscope_api_key=api_key)
+-def init_llm():
++def init_llm(_api_key: str):
+    return ChatTongyi(model="qwen-turbo", temperature=0, dashscope_api_key=_api_key)
 
 
 @st.cache_resource
@@ -88,7 +89,7 @@ def init_embeddings():
     return DirectDashScopeEmbeddings(model="text-embedding-v2")
 
 
-llm = init_llm()
+llm = init_llm(api_key)
 embeddings = init_embeddings()
 
 # ==================== 侧边栏：文件上传与处理 ====================
