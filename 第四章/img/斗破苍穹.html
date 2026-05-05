@@ -1,0 +1,845 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>斗破苍穹 · 人物谱</title>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #0a0a0f;
+  --bg-card: #111118;
+  --bg-table: #0d0d14;
+  --gold: #C9A96E;
+  --gold-bright: #E8C97A;
+  --flame: #E85D3A;
+  --flame-dim: #8B3A2A;
+  --text: #C8C0B8;
+  --text-dim: #7A736A;
+  --text-bright: #EBE5DC;
+  --border: #1E1E2A;
+  --accent-blue: #5B8FA8;
+  --accent-purple: #8B5B9E;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text);
+  font-family: 'Noto Serif SC', serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Background atmosphere ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(232,93,58,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 90%, rgba(201,169,110,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 50% at 20% 40%, rgba(91,143,168,0.03) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Flame particles ── */
+.particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: var(--flame);
+  border-radius: 50%;
+  animation: rise linear infinite;
+  opacity: 0;
+}
+@keyframes rise {
+  0%   { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+  10%  { opacity: 0.8; }
+  90%  { opacity: 0.2; }
+  100% { transform: translateY(-100vh) translateX(40px) scale(0.3); opacity: 0; }
+}
+
+/* ── Layout ── */
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+}
+
+/* ── Header ── */
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.header .realm-tag {
+  display: inline-block;
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 1rem;
+  color: var(--flame);
+  letter-spacing: 0.3em;
+  border: 1px solid var(--flame-dim);
+  padding: 0.3em 1.2em;
+  border-radius: 2px;
+  margin-bottom: 1.2rem;
+  background: rgba(232,93,58,0.05);
+}
+
+.header h1 {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 3.8rem;
+  color: var(--gold-bright);
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-shadow: 0 0 60px rgba(201,169,110,0.2);
+}
+
+.header .subtitle {
+  margin-top: 0.8rem;
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  letter-spacing: 0.2em;
+}
+
+.header .decoration {
+  margin: 1.8rem auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+.header .decoration .line {
+  width: 80px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.header .decoration .diamond {
+  width: 8px;
+  height: 8px;
+  background: var(--flame);
+  transform: rotate(45deg);
+  box-shadow: 0 0 12px var(--flame);
+}
+
+/* ── Controls ── */
+.controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.search-wrapper {
+  flex: 1;
+  min-width: 280px;
+  position: relative;
+}
+
+.search-wrapper .search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  color: var(--text-dim);
+  pointer-events: none;
+}
+
+.search-wrapper input {
+  width: 100%;
+  padding: 0.9rem 1rem 0.9rem 2.8rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-bright);
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  outline: none;
+}
+.search-wrapper input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201,169,110,0.1);
+}
+.search-wrapper input::placeholder { color: var(--text-dim); }
+
+.sort-select {
+  padding: 0.9rem 2.5rem 0.9rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-bright);
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23C9A96E' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.8rem center;
+  outline: none;
+  transition: border-color 0.3s;
+}
+.sort-select:focus { border-color: var(--gold); }
+
+.result-count {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+/* ── Table ── */
+.table-wrapper {
+  background: var(--bg-table);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 40px rgba(0,0,0,0.5);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+thead {
+  background: linear-gradient(180deg, rgba(201,169,110,0.08) 0%, rgba(201,169,110,0.02) 100%);
+}
+
+thead th {
+  padding: 1.1rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-bottom: 2px solid rgba(201,169,110,0.2);
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+thead th:hover { color: var(--gold-bright); }
+
+thead th .sort-arrow {
+  display: inline-block;
+  margin-left: 0.3em;
+  font-size: 0.7rem;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+thead th.sorted .sort-arrow { opacity: 1; color: var(--flame); }
+thead th.sorted-asc .sort-arrow::after { content: '▲'; }
+thead th.sorted-desc .sort-arrow::after { content: '▼'; }
+
+/* ── tbody: rows hidden by search will use this class (set by JS) ── */
+tbody tr.hidden-by-search { display: none; }
+
+tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background 0.25s;
+}
+
+tbody tr:last-child { border-bottom: none; }
+
+tbody tr:hover {
+  background: rgba(201,169,110,0.04);
+}
+
+tbody td {
+  padding: 1rem;
+  vertical-align: top;
+  line-height: 1.6;
+}
+
+/* ── Cell styles (pure CSS, class from HTML) ── */
+.cell-name {
+  font-weight: 600;
+  color: var(--text-bright);
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.cell-alias {
+  color: var(--accent-purple);
+  font-size: 0.85rem;
+}
+
+.cell-faction {
+  color: var(--accent-blue);
+  font-size: 0.87rem;
+}
+
+.cell-realm {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 2px;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.realm-god    { background: rgba(232,93,58,0.18); color: var(--flame); }
+.realm-saint  { background: rgba(201,169,110,0.15); color: var(--gold-bright); }
+.realm-lord   { background: rgba(139,91,158,0.18); color: #B88CC8; }
+.realm-king   { background: rgba(91,143,168,0.18); color: #7AB8D4; }
+.realm-common { background: rgba(122,115,106,0.15); color: var(--text-dim); }
+
+/* ── Flame tag ── */
+.flame-tag {
+  display: inline-block;
+  padding: 0.15em 0.5em;
+  margin: 0.1em 0.15em;
+  background: rgba(232,93,58,0.12);
+  border-radius: 2px;
+  font-size: 0.78rem;
+  color: var(--flame);
+  white-space: nowrap;
+}
+
+.cell-desc {
+  font-size: 0.83rem;
+  color: var(--text-dim);
+  max-width: 240px;
+}
+
+/* ── No results ── */
+.no-results {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-dim);
+  display: none;
+}
+.no-results.show { display: block; }
+.no-results .icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+
+/* ── Footer ── */
+.footer {
+  text-align: center;
+  margin-top: 3rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  letter-spacing: 0.15em;
+  opacity: 0.6;
+}
+
+/* ── Animations ── */
+@keyframes fadeInUp {
+  from { opacity:0; transform: translateY(24px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+.header        { animation: fadeInUp 0.8s ease both; }
+.controls      { animation: fadeInUp 0.8s 0.15s ease both; }
+.table-wrapper { animation: fadeInUp 0.8s 0.3s ease both; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .container { padding: 2rem 0.8rem 3rem; }
+  .header h1 { font-size: 2.4rem; }
+  .controls { flex-direction: column; }
+  .search-wrapper { min-width: 100%; }
+  .table-wrapper { overflow-x: auto; }
+  table { font-size: 0.8rem; min-width: 700px; }
+  thead th, tbody td { padding: 0.7rem 0.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Flame particles -->
+<div class="particles" id="particles"></div>
+
+<div class="container">
+
+  <!-- ==================== Header ==================== -->
+  <div class="header">
+    <div class="realm-tag">异 火 谱 · 人 物 志</div>
+    <h1>斗破苍穹</h1>
+    <p class="subtitle">— 人 物 图 鉴 —</p>
+    <div class="decoration">
+      <span class="line"></span>
+      <span class="diamond"></span>
+      <span class="line"></span>
+    </div>
+  </div>
+
+  <!-- ==================== Controls ==================== -->
+  <div class="controls">
+    <div class="search-wrapper">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search" placeholder="搜索人物名称、称号、势力…" autocomplete="off">
+    </div>
+    <select class="sort-select" id="sortBy">
+      <option value="default">默认排序</option>
+      <option value="name">按姓名</option>
+      <option value="realm">按境界</option>
+      <option value="faction">按势力</option>
+    </select>
+    <span class="result-count" id="count">共 15 位人物</span>
+  </div>
+
+  <!-- ==================== Table ==================== -->
+  <div class="table-wrapper">
+    <table id="mainTable">
+      <thead>
+        <tr>
+          <th data-col="name">姓名 <span class="sort-arrow"></span></th>
+          <th data-col="alias">称号/别名 <span class="sort-arrow"></span></th>
+          <th data-col="faction">势力 <span class="sort-arrow"></span></th>
+          <th data-col="realm">修为境界 <span class="sort-arrow"></span></th>
+          <th data-col="ability">异火/绝技 <span class="sort-arrow"></span></th>
+          <th data-col="desc">简介 <span class="sort-arrow"></span></th>
+        </tr>
+      </thead>
+      <!-- ══════════ 以下所有 <tr> 均为纯 HTML 硬编码，不通过 JS 生成 ══════════ -->
+      <tbody id="tableBody">
+
+        <!-- ===== 1 · 萧炎 ===== -->
+        <tr data-search="萧炎 炎帝 岩枭 天府联盟 萧族 斗帝 青莲地心火 陨落心炎 骨灵冷火 三千焱炎火 海心焰 净莲妖火 金帝焚天炎 多种异火 本书主角 从天才沦为废柴再逆袭成帝 身怀药老传承 集齐异火 创立天府联盟 终成炎帝" data-realm-rank="10">
+          <td class="cell-name">萧炎</td>
+          <td class="cell-alias">炎帝 / 岩枭</td>
+          <td class="cell-faction">天府联盟 · 萧族</td>
+          <td><span class="cell-realm realm-god">斗帝</span></td>
+          <td>
+            <span class="flame-tag">青莲地心火</span>
+            <span class="flame-tag">陨落心炎</span>
+            <span class="flame-tag">骨灵冷火</span>
+            <span class="flame-tag">三千焱炎火</span>
+            <span class="flame-tag">海心焰</span>
+            <span class="flame-tag">净莲妖火</span>
+            <span class="flame-tag">金帝焚天炎</span>
+            <span class="flame-tag">多种异火</span>
+          </td>
+          <td class="cell-desc">本书主角，从天才沦为废柴再逆袭成帝。身怀药老传承，集齐异火，创立天府联盟，终成炎帝。</td>
+        </tr>
+
+        <!-- ===== 2 · 药尘（药老） ===== -->
+        <tr data-search="药尘 药老 药尊者 大陆第一炼药师 药族 星陨阁 斗尊巅峰 骨灵冷火 萧炎的恩师与引路人 八品巅峰炼药师 遭弟子韩枫背叛陨落 灵魂寄居戒指中被萧炎唤醒" data-realm-rank="6">
+          <td class="cell-name">药尘（药老）</td>
+          <td class="cell-alias">药尊者 / 大陆第一炼药师</td>
+          <td class="cell-faction">药族（原）· 星陨阁</td>
+          <td><span class="cell-realm realm-lord">斗尊巅峰（生前）</span></td>
+          <td>
+            <span class="flame-tag">骨灵冷火</span>
+          </td>
+          <td class="cell-desc">萧炎的恩师与引路人，八品巅峰炼药师。遭弟子韩枫背叛陨落，灵魂寄居戒指中被萧炎唤醒。</td>
+        </tr>
+
+        <!-- ===== 3 · 萧薰儿 ===== -->
+        <tr data-search="萧薰儿 古族神品血脉 古族 斗圣 金帝焚天炎 古族千金 自幼被送往萧家 身怀神品血脉 对萧炎情深义重 一路默默守护" data-realm-rank="7">
+          <td class="cell-name">萧薰儿</td>
+          <td class="cell-alias">古族神品血脉</td>
+          <td class="cell-faction">古族</td>
+          <td><span class="cell-realm realm-saint">斗圣</span></td>
+          <td>
+            <span class="flame-tag">金帝焚天炎</span>
+          </td>
+          <td class="cell-desc">古族千金，自幼被送往萧家。身怀神品血脉，对萧炎情深义重，一路默默守护。</td>
+        </tr>
+
+        <!-- ===== 4 · 彩鳞（美杜莎） ===== -->
+        <tr data-search="彩鳞 美杜莎 蛇人族女王 七彩吞天蟒 蛇人族 炎盟 斗帝 七彩吞天蟒变身 蛇人族秘法 冷艳绝美 因异火进化成七彩吞天蟒 与萧炎从敌到友再到伴侣" data-realm-rank="10">
+          <td class="cell-name">彩鳞（美杜莎）</td>
+          <td class="cell-alias">蛇人族女王 / 七彩吞天蟒</td>
+          <td class="cell-faction">蛇人族 · 炎盟</td>
+          <td><span class="cell-realm realm-god">斗帝</span></td>
+          <td>
+            <span class="flame-tag">七彩吞天蟒变身</span>
+            <span class="flame-tag">蛇人族秘法</span>
+          </td>
+          <td class="cell-desc">蛇人族女王，冷艳绝美。因异火进化成七彩吞天蟒，与萧炎从敌到友再到伴侣。</td>
+        </tr>
+
+        <!-- ===== 5 · 小医仙 ===== -->
+        <tr data-search="小医仙 天毒女 出云帝国 炎盟 斗圣 厄难毒体 毒功通玄 身怀万年难遇的厄难毒体 善良坚韧 萧炎的红颜知己 以毒入道 最终控制毒体名震大陆" data-realm-rank="7">
+          <td class="cell-name">小医仙</td>
+          <td class="cell-alias">天毒女</td>
+          <td class="cell-faction">出云帝国（原）· 炎盟</td>
+          <td><span class="cell-realm realm-saint">斗圣</span></td>
+          <td>
+            <span class="flame-tag">厄难毒体</span>
+            <span class="flame-tag">毒功通玄</span>
+          </td>
+          <td class="cell-desc">身怀万年难遇的厄难毒体，善良坚韧。萧炎的红颜知己，以毒入道，最终控制毒体名震大陆。</td>
+        </tr>
+
+        <!-- ===== 6 · 紫妍 ===== -->
+        <tr data-search="紫妍 龙皇 小怪物 太虚古龙族 斗圣 龙凰体质 古龙真身 太虚古龙皇之女 外表少女实为远古魔兽 天生神力 爱吃药材 与萧炎情同兄妹" data-realm-rank="7">
+          <td class="cell-name">紫妍</td>
+          <td class="cell-alias">龙皇 / 小怪物</td>
+          <td class="cell-faction">太虚古龙族</td>
+          <td><span class="cell-realm realm-saint">斗圣</span></td>
+          <td>
+            <span class="flame-tag">龙凰体质</span>
+            <span class="flame-tag">古龙真身</span>
+          </td>
+          <td class="cell-desc">太虚古龙皇之女，外表少女实为远古魔兽。天生神力，爱吃药材，与萧炎情同兄妹。</td>
+        </tr>
+
+        <!-- ===== 7 · 纳兰嫣然 ===== -->
+        <tr data-search="纳兰嫣然 云岚宗少宗主 云岚宗 斗皇 风之极 陨杀 风絮残影 萧炎前未婚妻 因萧炎沦为废柴当众退婚 成为萧炎奋斗的起点 后幡然醒悟 悔不当初" data-realm-rank="3">
+          <td class="cell-name">纳兰嫣然</td>
+          <td class="cell-alias">云岚宗少宗主</td>
+          <td class="cell-faction">云岚宗</td>
+          <td><span class="cell-realm realm-king">斗皇</span></td>
+          <td>
+            <span class="flame-tag">风之极·陨杀</span>
+            <span class="flame-tag">风絮残影</span>
+          </td>
+          <td class="cell-desc">萧炎前未婚妻，因萧炎沦为废柴当众退婚，成为萧炎奋斗的起点。后幡然醒悟，悔不当初。</td>
+        </tr>
+
+        <!-- ===== 8 · 云韵 ===== -->
+        <tr data-search="云韵 云岚宗宗主 云芝 云岚宗 斗尊 风之极 落日耀 陨杀 云岚宗第九代宗主 风华绝代 曾化名云芝与萧炎在魔兽山脉相遇 后立场对立却情愫暗生" data-realm-rank="5">
+          <td class="cell-name">云韵</td>
+          <td class="cell-alias">云岚宗宗主 / 云芝</td>
+          <td class="cell-faction">云岚宗</td>
+          <td><span class="cell-realm realm-lord">斗尊</span></td>
+          <td>
+            <span class="flame-tag">风之极·落日耀</span>
+            <span class="flame-tag">风之极·陨杀</span>
+          </td>
+          <td class="cell-desc">云岚宗第九代宗主，风华绝代。曾化名云芝与萧炎在魔兽山脉相遇，后立场对立却情愫暗生。</td>
+        </tr>
+
+        <!-- ===== 9 · 海波东 ===== -->
+        <tr data-search="海波东 冰皇 加玛帝国 米特尔家族 斗皇 玄冰龙翔 万花冰镜 加玛帝国十大强者之一 冰系斗气出神入化 被美杜莎封印后与萧炎结盟 重振米特尔家族" data-realm-rank="3">
+          <td class="cell-name">海波东</td>
+          <td class="cell-alias">冰皇</td>
+          <td class="cell-faction">加玛帝国 · 米特尔家族</td>
+          <td><span class="cell-realm realm-king">斗皇</span></td>
+          <td>
+            <span class="flame-tag">玄冰龙翔</span>
+            <span class="flame-tag">万花冰镜</span>
+          </td>
+          <td class="cell-desc">加玛帝国十大强者之一，冰系斗气出神入化。被美杜莎封印后与萧炎结盟，重振米特尔家族。</td>
+        </tr>
+
+        <!-- ===== 10 · 萧战 ===== -->
+        <tr data-search="萧战 萧家族长 萧家 大斗师 萧家功法 萧炎之父 为人正直慈爱 在萧炎最落魄时始终不离不弃 后被魂殿掳走" data-realm-rank="2">
+          <td class="cell-name">萧战</td>
+          <td class="cell-alias">萧家族长</td>
+          <td class="cell-faction">萧家</td>
+          <td><span class="cell-realm realm-common">大斗师</span></td>
+          <td>
+            <span class="flame-tag">萧家功法</span>
+          </td>
+          <td class="cell-desc">萧炎之父，萧家族长。为人正直慈爱，在萧炎最落魄时始终不离不弃，后被魂殿掳走。</td>
+        </tr>
+
+        <!-- ===== 11 · 魂天帝 ===== -->
+        <tr data-search="魂天帝 魂族族长 万魂之主 魂族 斗帝 虚无吞炎 万魂朝拜 噬魂之术 全书最终反派 魂族千年枭雄 城府极深 谋划千年欲吞噬大陆 最终被萧炎以异火广场镇封" data-realm-rank="10">
+          <td class="cell-name">魂天帝</td>
+          <td class="cell-alias">魂族族长 / 万魂之主</td>
+          <td class="cell-faction">魂族</td>
+          <td><span class="cell-realm realm-god">斗帝</span></td>
+          <td>
+            <span class="flame-tag">虚无吞炎</span>
+            <span class="flame-tag">万魂朝拜</span>
+            <span class="flame-tag">噬魂之术</span>
+          </td>
+          <td class="cell-desc">全书最终反派，魂族千年枭雄。城府极深，谋划千年欲吞噬大陆，最终被萧炎以异火广场镇封。</td>
+        </tr>
+
+        <!-- ===== 12 · 古元 ===== -->
+        <tr data-search="古元 古族族长 古族 九星斗圣 帝印诀 古帝镜 萧薰儿之父 大陆至强者之一 沉稳睿智 为守护古族与大陆和平竭尽全力" data-realm-rank="9">
+          <td class="cell-name">古元</td>
+          <td class="cell-alias">古族族长</td>
+          <td class="cell-faction">古族</td>
+          <td><span class="cell-realm realm-saint">九星斗圣</span></td>
+          <td>
+            <span class="flame-tag">帝印诀</span>
+            <span class="flame-tag">古帝镜</span>
+          </td>
+          <td class="cell-desc">古族族长，萧薰儿之父，大陆至强者之一。沉稳睿智，为守护古族与大陆和平竭尽全力。</td>
+        </tr>
+
+        <!-- ===== 13 · 烛坤 ===== -->
+        <tr data-search="烛坤 老龙皇 太虚古龙族 九星斗圣 龙凰古甲 太古龙力 紫妍之父 前任龙皇 因探索陀舍古帝洞府被困千年 脱困后为守护女儿与古龙族而战" data-realm-rank="9">
+          <td class="cell-name">烛坤</td>
+          <td class="cell-alias">老龙皇</td>
+          <td class="cell-faction">太虚古龙族</td>
+          <td><span class="cell-realm realm-saint">九星斗圣</span></td>
+          <td>
+            <span class="flame-tag">龙凰古甲</span>
+            <span class="flame-tag">太古龙力</span>
+          </td>
+          <td class="cell-desc">紫妍之父，前任龙皇。因探索陀舍古帝洞府被困千年，脱困后为守护女儿与古龙族而战。</td>
+        </tr>
+
+        <!-- ===== 14 · 药天（药万归） ===== -->
+        <tr data-search="药天 药万归 药族族长 药族 七星斗圣 药族炼药术 大陆顶级炼药师 对药老曾被逐出药族心怀愧疚 在药族大劫中拼死抵抗魂族" data-realm-rank="8">
+          <td class="cell-name">药天（药万归）</td>
+          <td class="cell-alias">药族族长</td>
+          <td class="cell-faction">药族</td>
+          <td><span class="cell-realm realm-saint">七星斗圣</span></td>
+          <td>
+            <span class="flame-tag">药族炼药术</span>
+          </td>
+          <td class="cell-desc">药族族长，大陆顶级炼药师。对药老曾被逐出药族心怀愧疚，在药族大劫中拼死抵抗魂族。</td>
+        </tr>
+
+        <!-- ===== 15 · 韩枫 ===== -->
+        <tr data-search="韩枫 药皇 黑角域之主 黑角域 魂殿 斗皇巅峰 海心焰 药老叛徒弟子 为夺焚诀联手魂殿弑师 霸占黑角域号称药皇 最终被萧炎斩杀 异火被夺" data-realm-rank="4">
+          <td class="cell-name">韩枫</td>
+          <td class="cell-alias">药皇 / 黑角域之主</td>
+          <td class="cell-faction">黑角域 · 魂殿</td>
+          <td><span class="cell-realm realm-king">斗皇巅峰</span></td>
+          <td>
+            <span class="flame-tag">海心焰</span>
+          </td>
+          <td class="cell-desc">药老叛徒弟子，为夺焚诀联手魂殿弑师。霸占黑角域号称药皇，最终被萧炎斩杀，异火被夺。</td>
+        </tr>
+
+      </tbody>
+    </table>
+    <div class="no-results" id="noResults">
+      <div class="icon">🔥</div>
+      <p>茫茫人海，未寻此人…</p>
+    </div>
+  </div>
+
+  <!-- ==================== Footer ==================== -->
+  <div class="footer">
+    斗破苍穹 · 人物图鉴 &copy; 天蚕土豆 · 阅文集团
+  </div>
+
+</div>
+
+<!-- ==================== JS：仅处理搜索过滤 + 排序（不生成任何 HTML） ==================== -->
+<script>
+(function() {
+  var tbody   = document.getElementById('tableBody');
+  var search  = document.getElementById('search');
+  var sortSel = document.getElementById('sortBy');
+  var countEl = document.getElementById('count');
+  var noRes   = document.getElementById('noResults');
+  var allRows = tbody.querySelectorAll('tr');  // 引用 HTML 中已有的行
+  var total   = allRows.length;                // 15
+
+  // ── 粒子背景 ──
+  (function() {
+    var c = document.getElementById('particles');
+    for (var i = 0; i < 35; i++) {
+      var p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.bottom = '0';
+      p.style.animationDuration = (Math.random() * 8 + 6) + 's';
+      p.style.animationDelay    = (Math.random() * 8) + 's';
+      var s = Math.random() * 3 + 1;
+      p.style.width  = s + 'px';
+      p.style.height = s + 'px';
+      c.appendChild(p);
+    }
+  })();
+
+  // ── 状态 ──
+  var sortCol = null;
+  var sortAsc = true;
+
+  // ── 获取单元格文本（辅助） ──
+  function cellText(row, index) {
+    var td = row.children[index];
+    return td ? (td.textContent || '').trim() : '';
+  }
+
+  // ═══════════════ 搜索过滤 ═══════════════
+  function filterRows() {
+    var q = search.value.trim().toLowerCase();
+    var visible = 0;
+
+    for (var i = 0; i < allRows.length; i++) {
+      var row   = allRows[i];
+      var text  = row.getAttribute('data-search') || '';
+
+      if (!q || text.toLowerCase().indexOf(q) !== -1) {
+        row.classList.remove('hidden-by-search');
+        visible++;
+      } else {
+        row.classList.add('hidden-by-search');
+      }
+    }
+
+    // 更新计数 & 无结果提示
+    countEl.textContent = '共 ' + visible + ' 位人物';
+    if (visible === 0) {
+      noRes.classList.add('show');
+    } else {
+      noRes.classList.remove('show');
+    }
+    return visible;
+  }
+
+  // ═══════════════ 排序 ═══════════════
+  function sortRows() {
+    if (!sortCol) {
+      // 恢复 HTML 原始顺序：按 DOM 出现顺序排回
+      restoreDefaultOrder();
+      return;
+    }
+
+    // 收集所有行（只考虑可见的，不可见的放后面保持不动）
+    var rows = [];
+    var hidden = [];
+    for (var i = 0; i < allRows.length; i++) {
+      if (allRows[i].classList.contains('hidden-by-search')) {
+        hidden.push(allRows[i]);
+      } else {
+        rows.push(allRows[i]);
+      }
+    }
+
+    // 排序
+    rows.sort(function(a, b) {
+      var va, vb;
+      if (sortCol === 'name' || sortCol === 'alias' || sortCol === 'faction') {
+        va = cellText(a, colIndex(sortCol));
+        vb = cellText(b, colIndex(sortCol));
+        return sortAsc ? va.localeCompare(vb, 'zh') : vb.localeCompare(va, 'zh');
+      }
+      if (sortCol === 'realm') {
+        va = parseInt(a.getAttribute('data-realm-rank')) || 0;
+        vb = parseInt(b.getAttribute('data-realm-rank')) || 0;
+        return sortAsc ? va - vb : vb - va;
+      }
+      if (sortCol === 'ability') {
+        va = cellText(a, colIndex('ability'));
+        vb = cellText(b, colIndex('ability'));
+        return sortAsc ? va.localeCompare(vb, 'zh') : vb.localeCompare(va, 'zh');
+      }
+      if (sortCol === 'desc') {
+        // 简介按 HTML 原始 rank（data-realm-rank 偏离了，但 desc 没有单独的 rank，
+        // 我们直接比较文本长度或保持原序——这里保持原始 DOM 顺序）
+        return 0;
+      }
+      return 0;
+    });
+
+    // 重新插入 DOM
+    var all = rows.concat(hidden);
+    for (var j = 0; j < all.length; j++) {
+      tbody.appendChild(all[j]);
+    }
+  }
+
+  // 列下标映射
+  function colIndex(col) {
+    var map = { name:0, alias:1, faction:2, realm:3, ability:4, desc:5 };
+    return map[col] || 0;
+  }
+
+  // 恢复 HTML 原始顺序（按 data-realm-rank 的原始排序，即主角优先级）
+  function restoreDefaultOrder() {
+    var rows = [];
+    var hidden = [];
+    for (var i = 0; i < allRows.length; i++) {
+      if (allRows[i].classList.contains('hidden-by-search')) {
+        hidden.push(allRows[i]);
+      } else {
+        rows.push(allRows[i]);
+      }
+    }
+    // 默认顺序：按 domain 中 rank 编号（我们用一个隐藏序号 — 直接按 HTML 中出现顺序即为默认顺序，
+    // 但 appendChild 会改动顺序，所以我们用一个 index 属性标记原始位置）
+    // 简单方法：预先给每行存 originalIndex
+    rows.sort(function(a, b) {
+      return (a._origIdx || 0) - (b._origIdx || 0);
+    });
+    var all = rows.concat(hidden);
+    for (var j = 0; j < all.length; j++) {
+      tbody.appendChild(all[j]);
+    }
+  }
+
+  // ═══════════════ 更新表头箭头 ═══════════════
+  function updateHeaderArrows() {
+    var ths = document.querySelectorAll('#mainTable thead th');
+    for (var i = 0; i < ths.length; i++) {
+      var th = ths[i];
+      th.classList.remove('sorted', 'sorted-asc', 'sorted-desc');
+      if (th.getAttribute('data-col') === sortCol) {
+        th.classList.add('sorted');
+        th.classList.add(sortAsc ? 'sorted-asc' : 'sorted-desc');
+      }
+    }
+  }
+
+  // ═══════════════ 核心更新入口 ═══════════════
+  function update() {
+    filterRows();
+    sortRows();
+    updateHeaderArrows();
+  }
+
+  // ── 初始化：给每行标记原始位置 ──
+  for (var i = 0; i < allRows.length; i++) {
+    allRows[i]._origIdx = i;
+  }
+
+  // ═══════════════ 事件绑定 ═══════════════
+
+  // 搜索（防抖）
+  var debounce = null;
+  search.addEventListener('input', function() {
+    clearTimeout(debounce);
+    debounce = setTimeout(update, 150);
+  });
+
+  // 下拉排序
+  sortSel.addEventListener('change', function() {
+    var v = this.value;
+    if (v === 'default') {
+      sortCol = null;
+      sortAsc = true;
+    } else {
+      if (sortCol === v) {
+        sortAsc = !sortAsc;
+      } else {
+        sortCol = v;
+        sortAsc = true;
+      }
+      this.value = 'default'; // 外观复位
+    }
+    update();
+  });
+
+  // 点击表头排序
+  var ths = document.querySelectorAll('#mainTable thead th');
+  for (var i = 0; i < ths.length; i++) {
+    ths[i].addEventListener('click', function() {
+      var col = this.getAttribute('data-col');
+      if (sortCol === col) {
+        sortAsc = !sortAsc;
+      } else {
+        sortCol = col;
+        sortAsc = true;
+      }
+      sortSel.value = 'default';
+      update();
+    });
+  }
+
+  // ── 初始状态 ──
+  update();
+
+})();
+</script>
+
+</body>
+</html>
